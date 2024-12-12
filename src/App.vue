@@ -1,30 +1,76 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <div id="app">
+    <HeaderMain />
+    <!-- Оверлей -->
+    <div ref="overlay" class="overlay"></div>
+    <CursorCustume />
+
+    <!-- Переходи між сторінками -->
+    <transition
+      mode="out-in"
+      @before-enter="beforeEnter"
+      @enter="enter"
+    >
+      <router-view />
+    </transition>
+  </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import { defineComponent, ref } from 'vue';
+import { gsap } from 'gsap';
+import CursorCustume from './components/CursorCustom.vue';
+import HeaderMain from './components/HeaderMain.vue';
 
-nav {
-  padding: 30px;
+export default defineComponent({
+  name: 'App',
+  components: {
+    CursorCustume,
+    HeaderMain,
+  },
+  setup() {
+    const overlay = ref(null); // посилання на оверлей
+    const isInitialLoad = ref(true); // прапорець для першого завантаження
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
+    const beforeEnter = () => {
+      // Перекриваємо екран оверлеєм перед завантаженням нового контенту
+      gsap.set(overlay.value, { x: '0%' });
+    };
 
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
-</style>
+    const enter = (el, done) => {
+      if (isInitialLoad.value) {
+        // Якщо це перше завантаження сторінки
+        gsap.to(overlay.value, {
+          duration: 1,
+          x: '100%',
+          ease: 'power2.inOut',
+          onComplete: () => {
+            isInitialLoad.value = false;
+            done(); // Завершуємо перехід і показуємо контент
+          },
+        });
+      } else {
+        // Якщо це не перше завантаження
+        gsap.timeline({ onComplete: done })
+          .to(overlay.value, {
+            duration: 0.5,
+            x: '0%', 
+            ease: 'power2.inOut',
+          })
+          .to(overlay.value, {
+            duration: 0.5,
+            x: '100%',
+            ease: 'power2.inOut',
+          });
+      }
+    };
+
+    return {
+      overlay,
+      beforeEnter,
+      enter,
+    };
+  },
+});
+</script>
+
