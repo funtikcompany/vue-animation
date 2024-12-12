@@ -6,8 +6,6 @@
         <img src="../assets/img/cursor.png" alt="Rotating Image" />
       </div>
     </div>
-    <!-- Вміст сторінки -->
-    <slot></slot>
   </div>
 </template>
 
