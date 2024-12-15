@@ -29,28 +29,25 @@ export default defineComponent({
     HeaderMain,
   },
   setup() {
-    const overlay = ref(null); // посилання на оверлей
-    const isInitialLoad = ref(true); // прапорець для першого завантаження
+    const overlay = ref(null);
+    const isInitialLoad = ref(true);
 
     const beforeEnter = () => {
-      // Перекриваємо екран оверлеєм перед завантаженням нового контенту
       gsap.set(overlay.value, { x: '0%' });
     };
 
     const enter = (el, done) => {
       if (isInitialLoad.value) {
-        // Якщо це перше завантаження сторінки
         gsap.to(overlay.value, {
           duration: 1,
           x: '100%',
           ease: 'power2.inOut',
           onComplete: () => {
             isInitialLoad.value = false;
-            done(); // Завершуємо перехід і показуємо контент
+            done();
           },
         });
       } else {
-        // Якщо це не перше завантаження
         gsap.timeline({ onComplete: done })
           .to(overlay.value, {
             duration: 0.5,
